@@ -3,6 +3,7 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { LoggerModule } from "nestjs-pino";
 import { randomUUID } from "crypto";
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -14,6 +15,18 @@ import { randomUUID } from "crypto";
           return req.headers["x-request-id"]?.toString() || randomUUID();
         },
 
+        serializers: {
+          req: (req) => ({
+            id: req.id,
+            method: req.method,
+            url: req.url,
+          }),
+
+          res: (res) => ({
+            statusCode: res.statusCode,
+          }),
+        },
+
         transport: {
           target: "pino-pretty",
           options: {
@@ -23,6 +36,7 @@ import { randomUUID } from "crypto";
         },
       },
     }),
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
